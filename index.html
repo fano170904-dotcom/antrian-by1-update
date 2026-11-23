@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ANTRIAN BY1</title>
+<style>
+:root{color-scheme:dark;--bg:#050505;--panel:#090909;--line:#242424;--muted:#858585;--purple:#9747f5;--gold:#e5b92f}
+*{box-sizing:border-box}body{margin:0;background:#eee;color:#fff;font-family:Arial,Helvetica,sans-serif;min-height:100vh;display:grid;place-items:center;padding:24px}
+.app{width:min(100%,760px);background:#030303;border:1px solid #171717;border-radius:28px;padding:30px 28px 34px;box-shadow:0 18px 50px #0003}
+header{display:flex;align-items:center;justify-content:center;gap:12px;font-size:clamp(20px,4vw,30px);font-weight:900;letter-spacing:5px;padding:12px 0 27px;border-bottom:1px solid #1c1c1c}
+header span{font-size:24px;letter-spacing:0}
+.list{display:grid;gap:13px;margin-top:24px}
+.item{display:flex;align-items:center;gap:18px;padding:18px 16px;border:1px solid transparent;border-radius:22px;min-height:112px;transition:.2s}
+.item:first-child{border-color:#343434;background:linear-gradient(110deg,#111,#080808)}
+.num{width:66px;height:66px;flex:0 0 66px;border-radius:18px;display:grid;place-items:center;background:#777e8c;font-size:30px;font-weight:800}
+.item:nth-child(2) .num{background:linear-gradient(135deg,#bb67ff,#7627d9)}
+.item:first-child .num{background:#fff;color:#111}
+.info{min-width:0;flex:1}.name{font-size:clamp(20px,4vw,28px);font-weight:800;overflow-wrap:anywhere}.meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:7px;color:#777;font-size:18px;letter-spacing:1px}
+.tag{font-size:13px;font-weight:900;letter-spacing:1px;padding:7px 12px;border-radius:7px;background:#30250b;color:#f2ca45}.tag.vip{background:#211332;color:#b77aff}.live{background:white;color:#080808;font-size:17px;font-weight:900;letter-spacing:2px;padding:13px 19px;border-radius:13px}
+.empty{text-align:center;color:#888;padding:45px 10px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:24px;color:#777;font-size:12px}
+button{border:0;border-radius:10px;padding:11px 14px;font-weight:800;cursor:pointer}.adminbtn{background:#1b1b1b;color:#ddd;border:1px solid #333}.primary{background:#8d42e8;color:white}.danger{background:#3a1515;color:#ffbcbc}.ghost{background:#222;color:#ddd}
+#admin{display:none;margin-top:24px;border-top:1px solid #222;padding-top:20px}#admin h2{font-size:17px;margin:0 0 15px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}input{width:100%;background:#111;color:white;border:1px solid #333;border-radius:10px;padding:13px;font-size:15px}label{font-size:12px;color:#aaa;display:grid;gap:6px}.checks{display:flex;gap:18px;align-items:center;margin:14px 0;color:#bbb;font-size:14px}.checks label{display:flex;align-items:center;gap:7px}.checks input{width:auto}
+.adminrow{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #292929;padding:10px;border-radius:12px;margin-top:8px}.adminrow small{color:#888;display:block;margin-top:4px}.actions{display:flex;gap:6px;flex-wrap:wrap}.actions button{padding:8px 10px;font-size:12px}
+#login{display:none;margin-top:16px}.loginrow{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}
+.note{font-size:12px;color:#777;line-height:1.5;margin-top:14px}
+body.overlay{background:transparent;display:block;padding:0;min-height:0}.overlay .app{width:100%;background:transparent;border:0;border-radius:0;padding:8px;box-shadow:none}.overlay header{display:none}.overlay .list{margin-top:0;gap:6px}.overlay .item{background:rgba(0,0,0,.86);border-color:#333;padding:8px 10px;min-height:0;border-radius:12px;gap:10px}.overlay .num{width:36px;height:36px;flex-basis:36px;font-size:17px;border-radius:9px}.overlay .name{font-size:16px}.overlay .meta{font-size:12px;margin-top:3px;gap:6px}.overlay .tag{font-size:10px;padding:4px 7px}.overlay .live{font-size:11px;padding:7px 9px;border-radius:8px}.overlay .toolbar,.overlay #admin{display:none}
+@media(max-width:520px){body{padding:12px}.app{padding:20px 14px;border-radius:22px}.item{gap:12px;padding:14px 10px;min-height:94px}.num{width:54px;height:54px;flex-basis:54px;border-radius:15px;font-size:24px}.meta{font-size:14px;gap:8px}.live{font-size:13px;padding:10px}.formgrid,.loginrow{grid-template-columns:1fr}.adminrow{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<main class="app">
+<header><span>⚒</span> ANTRIAN BY1</header>
+<section id="queue" class="list"></section>
+<div class="toolbar"><span id="status">MODE DEMO · DATA TERSIMPAN DI PERANGKAT INI</span><button class="adminbtn" id="adminToggle">PANEL ADMIN</button></div>
+<section id="admin">
+<h2>Panel admin</h2>
+<div id="login">
+ <div class="loginrow"><input id="email" type="email" placeholder="Email admin"><input id="password" type="password" placeholder="Password"><button class="primary" id="loginBtn">MASUK</button></div>
+ <p class="note">Login Firebase hanya aktif setelah konfigurasi Firebase diisi.</p>
+</div>
+<div id="editor">
+ <div class="formgrid">
+  <label>Nama user<input id="name" placeholder="Contoh: someone"></label>
+  <label>ID / nomor<input id="userId" placeholder="Contoh: 8793258134"></label>
+ </div>
+ <div class="checks"><label><input type="checkbox" id="vip"> VIP</label><label><input type="checkbox" id="skipAll"> SKIP ALL</label><label><input type="checkbox" id="live"> LIVE</label></div>
+ <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" id="save">TAMBAH ANTREAN</button><button class="ghost" id="cancel" style="display:none">BATAL EDIT</button><button class="ghost" id="logout" style="display:none">KELUAR</button></div>
+ <div id="adminList"></div>
+ <p class="note">Mode demo hanya menyimpan data di browser ini. Untuk sinkronisasi real-time ke semua pengunjung, isi konfigurasi Firebase pada bagian CONFIG di dalam file ini, lalu aktifkan Firebase Authentication dan Realtime Database Rules sesuai petunjuk yang menyertai file.</p>
+</div>
+</section>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+// CONFIG FIREBASE: ganti nilai di bawah dengan konfigurasi dari Firebase Console.
+const firebaseConfig = {apiKey:"ISI_API_KEY",authDomain:"ISI_PROJECT.firebaseapp.com",databaseURL:"https://ISI_PROJECT-default-rtdb.firebaseio.com",projectId:"ISI_PROJECT",appId:"ISI_APP_ID"};
+const configured = firebaseConfig.apiKey !== "ISI_API_KEY";
+let db=null,auth=null,editing=null,items=[];
+const demoSeed=[
+ {id:"a1",name:"someone",userId:"8793258134",vip:true,skipAll:false,live:true},
+ {id:"a2",name:"arhanjiro",userId:"9757962431",vip:true,skipAll:false,live:false},
+ {id:"a3",name:"kaff",userId:"850848372",vip:false,skipAll:false,live:false},
+ {id:"a4",name:"paranormal",userId:"9092522671",vip:false,skipAll:false,live:false}
+];
+const $=id=>document.getElementById(id);
+function saveLocal(){localStorage.setItem("by1queue",JSON.stringify(items))}
+function render(){
+ const q=$("queue");q.innerHTML="";
+ if(!items.length){q.innerHTML='<div class="empty">Belum ada antrean.</div>'}
+ items.forEach((u,i)=>{
+  const el=document.createElement("article");el.className="item";
+  const num=document.createElement("div");num.className="num";num.textContent=i+1;
+  const info=document.createElement("div");info.className="info";
+  const name=document.createElement("div");name.className="name";name.textContent=u.name;
+  const meta=document.createElement("div");meta.className="meta";
+  const id=document.createElement("span");id.textContent=u.userId;meta.append(id);
+  if(u.vip){const tag=document.createElement("span");tag.className="tag vip";tag.textContent="VIP";meta.append(tag)}
+  if(u.skipAll){const tag=document.createElement("span");tag.className="tag";tag.textContent="SKIP ALL";meta.append(tag)}
+  info.append(name,meta);el.append(num,info);
+  if(u.live){const live=document.createElement("span");live.className="live";live.textContent="LIVE";el.append(live)}
+  q.append(el);
+ });
+ renderAdmin();
+}
+function renderAdmin(){
+ const box=$("adminList");box.innerHTML="";
+ items.forEach((u,i)=>{
+  const row=document.createElement("div");row.className="adminrow";
+  const info=document.createElement("div");info.textContent=`${i+1}. ${u.name}`;
+  const small=document.createElement("small");small.textContent=u.userId+(u.vip?" · VIP":"")+(u.skipAll?" · SKIP ALL":"")+(u.live?" · LIVE":"");info.append(small);
+  const actions=document.createElement("div");actions.className="actions";
+  const make=(label,fn,cls="ghost")=>{const b=document.createElement("button");b.className=cls;b.textContent=label;b.onclick=fn;return b};
+  actions.append(make("↑",()=>move(i,-1)),make("↓",()=>move(i,1)),make("EDIT",()=>edit(u)),make("HAPUS",()=>remove(u.id),"danger"));
+  row.append(info,actions);box.append(row);
+ });
+}
+function commit(){if(db){db.ref("queues/by1").set(items)}else{saveLocal();render()}}
+function move(i,d){const j=i+d;if(j<0||j>=items.length)return;[items[i],items[j]]=[items[j],items[i]];commit()}
+function remove(id){if(!confirm("Hapus user ini dari antrean?"))return;items=items.filter(x=>x.id!==id);commit()}
+function edit(u){editing=u.id;$("name").value=u.name;$("userId").value=u.userId;$("vip").checked=!!u.vip;$("skipAll").checked=!!u.skipAll;$("live").checked=!!u.live;$("save").textContent="SIMPAN PERUBAHAN";$("cancel").style.display="inline-block"}
+function resetForm(){editing=null;$("name").value="";$("userId").value="";$("vip").checked=false;$("skipAll").checked=false;$("live").checked=false;$("save").textContent="TAMBAH ANTREAN";$("cancel").style.display="none"}
+$("save").onclick=()=>{
+ const name=$("name").value.trim(),userId=$("userId").value.trim();if(!name||!userId){alert("Isi nama dan ID terlebih dahulu.");return}
+ const data={name,userId,vip:$("vip").checked,skipAll:$("skipAll").checked,live:$("live").checked};
+ if(editing){items=items.map(x=>x.id===editing?{...x,...data}:x)}else{items.push({id:db?String(Date.now()):"u"+Date.now(),...data})}
+ resetForm();commit();
+};
+$("cancel").onclick=resetForm;
+$("adminToggle").onclick=()=>{$("admin").style.display=$("admin").style.display==="block"?"none":"block"};
+$("loginBtn").onclick=async()=>{try{await auth.signInWithEmailAndPassword($("email").value,$("password").value)}catch(e){alert("Login gagal: "+e.message)}};
+$("logout").onclick=()=>auth.signOut();
+if(configured){
+ try{firebase.initializeApp(firebaseConfig);auth=firebase.auth();db=firebase.database();
+ auth.onAuthStateChanged(user=>{$("editor").style.display=user?"block":"none";$("login").style.display=user?"none":"block";$("logout").style.display=user?"inline-block":"none";$("status").textContent=user?"FIREBASE · ADMIN LOGIN":"FIREBASE · LIVE";});
+ db.ref("queues/by1").on("value",s=>{items=s.val()||[];render()});
+ $("status").textContent="FIREBASE · MENGHUBUNGKAN...";
+ }catch(e){console.error(e);startDemo()}
+}else startDemo();
+function startDemo(){items=JSON.parse(localStorage.getItem("by1queue")||"null")||demoSeed;render()}
+// Overlay mode: append ?overlay=1 to this URL for the stream browser source.
+if(new URLSearchParams(location.search).get("overlay")==="1"){document.body.classList.add("overlay");$("adminToggle").style.display="none";}
+</script>
+</body></html>
